@@ -8,7 +8,9 @@ else:
     STATE_HOME = Path(f'{environ["HOME"]}/.local/state/niezapominajka')
 if not Path.exists(STATE_HOME): Path.mkdir(STATE_HOME)
 
-
-if __name__ == '__main__':
+def main():
     import cli
     cli.cli()
+
+if __name__ == '__main__':
+    main()
