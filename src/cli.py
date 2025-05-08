@@ -52,7 +52,6 @@ def cli_review(deck_name):
                 break
 
 
-
 def sigint(sig, frame):
     print(end='\r')
     exit()

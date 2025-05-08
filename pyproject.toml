@@ -11,6 +11,10 @@ requires-python = ">=3.6"
 classifiers = [
     "Programming Language :: Python :: 3"
 ]
+dependencies = [
+    "PyQt6"
+]
 
 [project.scripts]
-niezapominajka = "main:main"
+niezapominajka = "main:run_cli"
+niezapominajqt = "main:run_gui"
