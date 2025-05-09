@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 import review
-from main import STATE_HOME
+from constants import STATE_HOME
 
 
 class MainWindow(QMainWindow):
@@ -59,12 +59,16 @@ class DeckReview(QWidget):
         self.good.clicked.connect(lambda: self.answered(1))
         self.bad.clicked.connect(lambda: self.answered(0))
 
-        self.cards_for_review = review.cards_for_review(deck_name)
+        self.is_deck_empty = None
+
+        self.cards_for_review = review.get_cards_for_review(deck_name)
         if not self.cards_for_review:
+            self.is_deck_empty = True
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
             self.bad.hide()
         else:
+            self.is_deck_empty = False
             self.card_pair = defaultdict()
             self.question_text = None
             self.answer_text = None
@@ -91,7 +95,7 @@ class DeckReview(QWidget):
         self.is_question = True
 
     def mouseReleaseEvent(self, _event):
-        if self.cards_for_review:
+        if self.is_deck_empty is False:
             if self.is_question:
                 self.card_widget.setText(self.answer_text)
                 self.is_question = False
@@ -102,6 +106,7 @@ class DeckReview(QWidget):
     def answered(self, score):
         review.card_reviewed(self.card_pair, score)
         if not self.cards_for_review:
+            self.is_deck_empty = True
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
             self.bad.hide()

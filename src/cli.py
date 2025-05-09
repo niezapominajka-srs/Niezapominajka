@@ -5,7 +5,8 @@ from signal import SIGINT, signal
 from sys import stdin
 
 import review
-from main import STATE_HOME
+from constants import STATE_HOME
+
 
 def cli():
     decks = set()
@@ -13,15 +14,16 @@ def cli():
     for path in STATE_HOME.iterdir():
         decks.add(path.stem)
         print(f'  {path.stem}')
-    while(True):
+    while True:
         deck_name = stdin.readline().strip()
         if deck_name in decks:
             print('-------------\n-------------')
             cli_review(deck_name)
             break
 
+
 def cli_review(deck_name):
-    cards_for_review = review.cards_for_review(deck_name)
+    cards_for_review = review.get_cards_for_review(deck_name)
     if not cards_for_review: print('Empty deck :)')
 
     for card_path in cards_for_review:
@@ -40,7 +42,7 @@ def cli_review(deck_name):
         input()
         print(Path.read_text(card_pair['answer_path']).strip())
         print('-------------\n(g)ood  (b)ad')
-        while(True):
+        while True:
             key = stdin.readline()
             if key == 'g\n':
                 print('-------------\n-------------')
@@ -52,7 +54,9 @@ def cli_review(deck_name):
                 break
 
 
-def sigint(sig, frame):
+def sigint(_sig, _frame):
     print(end='\r')
-    exit()
+    raise SystemExit
+
+
 signal(SIGINT, sigint)
