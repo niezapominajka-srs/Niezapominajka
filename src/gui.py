@@ -59,19 +59,15 @@ class DeckReview(QWidget):
         self.good.clicked.connect(lambda: self.answered(1))
         self.bad.clicked.connect(lambda: self.answered(0))
 
-        self.is_deck_empty = None
-
+        self.answer_text = None
+        self.question_text = None
         self.cards_for_review = review.get_cards_for_review(deck_name)
         if not self.cards_for_review:
-            self.is_deck_empty = True
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
             self.bad.hide()
         else:
-            self.is_deck_empty = False
             self.card_pair = defaultdict()
-            self.question_text = None
-            self.answer_text = None
             self.is_question = None
 
             self.deal_a_card()
@@ -95,7 +91,7 @@ class DeckReview(QWidget):
         self.is_question = True
 
     def mouseReleaseEvent(self, _event):
-        if self.is_deck_empty is False:
+        if self.answer_text is not None:
             if self.is_question:
                 self.card_widget.setText(self.answer_text)
                 self.is_question = False
@@ -106,10 +102,11 @@ class DeckReview(QWidget):
     def answered(self, score):
         review.card_reviewed(self.card_pair, score)
         if not self.cards_for_review:
-            self.is_deck_empty = True
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
             self.bad.hide()
+            self.answer_text = None
+            self.question_text = None
         else: self.deal_a_card()
 
 
