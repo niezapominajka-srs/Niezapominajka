@@ -6,14 +6,14 @@ from pathlib import Path
 from constants import STATE_HOME
 
 
-def card_reviewed(card_pair, score):
-    with open(card_pair['info_path'], encoding='utf-8') as content:
+def card_reviewed(info_path, side, score):
+    with open(info_path, encoding='utf-8') as content:
         content = list(content)
         level = None
         for line in content:
             try: key, val = line.strip().split(' = ')
             except ValueError: continue
-            if key == f'{card_pair["side"]}_level':
+            if key == f'{side}_level':
                 if val.isnumeric():
                     level = int(val)
 
@@ -25,18 +25,18 @@ def card_reviewed(card_pair, score):
                 newline_added = f'{content.pop()}\n'
                 content.append(newline_added)
             level = score
-            text = f'{card_pair["side"]}_level = {level}'
+            text = f'{side}_level = {level}'
             content.append(text)
 
         next_revision_date = date.today() + timedelta(days=level+1)
         for i, line in enumerate(content):
             try: key, val = line.split(' = ')
             except ValueError: continue
-            if key == f'{card_pair["side"]}_level':
-                content[i] = f'{card_pair["side"]}_level = {level}\n'
-            if key == f'{card_pair["side"]}_next_revision':
-                content[i] = f'{card_pair["side"]}_next_revision = {next_revision_date}\n'
-        Path.write_text(card_pair['info_path'], ''.join(content))
+            if key == f'{side}_level':
+                content[i] = f'{side}_level = {level}\n'
+            if key == f'{side}_next_revision':
+                content[i] = f'{side}_next_revision = {next_revision_date}\n'
+        Path.write_text(info_path, ''.join(content))
 
 
 def get_cards_for_review(deck_name):
@@ -69,9 +69,24 @@ def get_cards_for_review(deck_name):
         if exts != {'f', 'b'}
     }
 
-    cards_for_review = set()
+    def get_review_dict(side):
+        if side == 'f':
+            return {
+                "question_path": card_pair_path['f'],
+                "answer_path": card_pair_path['b'],
+                "info_path": card_pair_path['i'],
+                "side": "front"
+            }
+        return {
+            "question_path": card_pair_path['b'],
+            "answer_path": card_pair_path['f'],
+            "info_path": card_pair_path['i'],
+            "side": "back"
+        }
+
+    cards_for_review = []
     for card in cards_validated:
-        card_pair_path = defaultdict()
+        card_pair_path = {}
         card_pair_path['i'] = Path.joinpath(deck_dir, f'{card}.i')
         card_pair_path['f'] = Path.joinpath(deck_dir, f'{card}.f')
         card_pair_path['b'] = Path.joinpath(deck_dir, f'{card}.b')
@@ -100,7 +115,7 @@ def get_cards_for_review(deck_name):
                             continue
                 if front_next_revision:
                     if front_next_revision <= date.today():
-                        cards_for_review.add(card_pair_path['f'])
+                        cards_for_review.append(get_review_dict('f'))
                 else:
                     with open(card_pair_path['i'], 'ab+') as f:
                         text = f'front_next_revision = {date.today()}'
@@ -109,11 +124,10 @@ def get_cards_for_review(deck_name):
                             if f.read(1) != b'\n':
                                 f.write(b'\n')
                         f.write(text.encode('utf-8'))
-                        cards_for_review.add(card_pair_path['f'])
-
+                        cards_for_review.append(get_review_dict('f'))
                 if back_next_revision:
                     if back_next_revision <= date.today():
-                        cards_for_review.add(card_pair_path['b'])
+                        cards_for_review.append(get_review_dict('b'))
                 else:
                     with open(card_pair_path['i'], 'ab+') as f:
                         text = f'back_next_revision = {date.today()}'
@@ -122,13 +136,14 @@ def get_cards_for_review(deck_name):
                             if f.read(1) != b'\n':
                                 f.write(b'\n')
                         f.write(text.encode('utf-8'))
-                        cards_for_review.add(card_pair_path['b'])
+                        cards_for_review.append(get_review_dict('b'))
+        # if there's no info file, create it and add front and back to today's revision
         else:
             Path.touch(card_pair_path['i'])
             with open(card_pair_path['i'], 'a', encoding='utf-8') as f:
                 f.write(f'front_next_revision = {date.today()}')
                 f.write(f'\nback_next_revision = {date.today()}\n')
-                cards_for_review.add(card_pair_path['f'])
-                cards_for_review.add(card_pair_path['b'])
+                cards_for_review.append(get_review_dict('f'))
+                cards_for_review.append(get_review_dict('b'))
 
     return cards_for_review

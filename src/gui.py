@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from collections import defaultdict
 from pathlib import Path
 from signal import SIGINT, signal, SIG_DFL
 from PyQt6.QtWidgets import (
@@ -67,22 +66,13 @@ class DeckReview(QWidget):
             self.good.hide()
             self.bad.hide()
         else:
-            self.card_pair = defaultdict()
+            self.card_pair = None
             self.is_question = None
 
             self.deal_a_card()
 
     def deal_a_card(self):
-        card_path = self.cards_for_review.pop()
-        card_path_no_suffix = card_path.parent / card_path.stem
-        self.card_pair['question_path'] = card_path
-        self.card_pair['info_path'] = Path(f'{card_path_no_suffix}.i')
-        if card_path.suffix == '.f':
-            self.card_pair['side'] = 'front'
-            self.card_pair['answer_path'] = Path(f'{card_path_no_suffix}.b')
-        elif card_path.suffix == '.b':
-            self.card_pair['side'] = 'back'
-            self.card_pair['answer_path'] = Path(f'{card_path_no_suffix}.f')
+        self.card_pair = self.cards_for_review.pop()
 
         self.question_text = Path.read_text(self.card_pair['question_path']).strip()
         self.answer_text = Path.read_text(self.card_pair['answer_path']).strip()
@@ -100,7 +90,7 @@ class DeckReview(QWidget):
                 self.is_question = True
 
     def answered(self, score):
-        review.card_reviewed(self.card_pair, score)
+        review.card_reviewed(self.card_pair['info_path'], self.card_pair['side'], score)
         if not self.cards_for_review:
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
