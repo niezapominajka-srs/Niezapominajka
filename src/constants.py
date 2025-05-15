@@ -15,4 +15,4 @@ if not Path.exists(STATE_HOME): Path.mkdir(STATE_HOME)
 for arg in argv[1:]:
     if arg == '--cli': MODE = 'cli'
     else:
-        print(f'usage: {argv[0]} [--cli]')
+        raise SystemExit(f'usage: {argv[0]} [--cli]')
