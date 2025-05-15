@@ -12,7 +12,6 @@ from PyQt6.QtWidgets import (
 )
 
 import review
-from constants import STATE_HOME
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +29,7 @@ class HomeScreen(QWidget):
         self.setLayout(layout)
 
         self.deck_list = QListWidget(self)
-        self.deck_list.addItems([path.stem for path in STATE_HOME.iterdir()])
+        self.deck_list.addItems(x for x in review.get_deck_list())
         layout.addWidget(self.deck_list)
 
         self.deck_list.clicked.connect(self.review_gui)

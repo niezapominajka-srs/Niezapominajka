@@ -4,18 +4,15 @@ from signal import SIGINT, signal
 from sys import stdin
 
 import review
-from constants import STATE_HOME
 
 
 def cli():
-    decks = set()
-    print('Decks:')
-    for path in STATE_HOME.iterdir():
-        decks.add(path.stem)
-        print(f'  {path.stem}')
+    deck_list = review.get_deck_list()
+    print('Decks:', )
+    for x in deck_list: print(' ', x)
     while True:
         deck_name = stdin.readline().strip()
-        if deck_name in decks:
+        if deck_name in deck_list:
             print('-------------\n-------------')
             cli_review(deck_name)
             break

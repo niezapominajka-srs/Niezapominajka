@@ -39,6 +39,10 @@ def card_reviewed(info_path, side, score):
         Path.write_text(info_path, ''.join(content))
 
 
+def get_deck_list():
+    return [x.stem for x in STATE_HOME.iterdir() if x.is_dir()]
+
+
 def get_cards_for_review(deck_name):
     deck_dir = STATE_HOME / deck_name
 
