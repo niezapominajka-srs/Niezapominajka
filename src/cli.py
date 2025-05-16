@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from pathlib import Path
 from signal import SIGINT, signal
 from sys import stdin
 
@@ -22,10 +21,14 @@ def cli_review(deck_name):
     cards_for_review = review.get_cards_for_review(deck_name)
     while cards_for_review:
         card_pair = cards_for_review.pop()
-        print(Path.read_text(card_pair['question_path']).strip())
-        input()
-        print(Path.read_text(card_pair['answer_path']).strip())
-        print('-------------\n(g)ood  (b)ad')
+        try:
+            print(review.get_card_content(card_pair['question_path']))
+            input()
+            print(review.get_card_content(card_pair['answer_path']))
+            print('-------------\n(g)ood  (b)ad')
+        except FileNotFoundError:
+            print('-------------\n-------------')
+            continue
         while True:
             key = stdin.readline()
             if key == 'g\n':

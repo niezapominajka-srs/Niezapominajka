@@ -39,6 +39,15 @@ def card_reviewed(info_path, side, score):
         Path.write_text(info_path, ''.join(content))
 
 
+def get_card_content(card_path):
+    try:
+        return Path.read_text(card_path).strip()
+    except FileNotFoundError:
+        print(f'{card_path} does not exist, but it existed when the cards for \
+review were being assembled. Moving to the next card')
+        raise
+
+
 def get_deck_list():
     return [x.stem for x in STATE_HOME.iterdir() if x.is_dir()]
 

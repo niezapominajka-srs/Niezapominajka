@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from pathlib import Path
 from signal import SIGINT, signal, SIG_DFL
 from PyQt6.QtWidgets import (
     QApplication,
@@ -71,13 +70,23 @@ class DeckReview(QWidget):
             self.deal_a_card()
 
     def deal_a_card(self):
-        self.card_pair = self.cards_for_review.pop()
+        self.good.hide()
+        self.bad.hide()
+        if not self.cards_for_review:
+            self.card_widget.setText('Empty deck :)')
+            self.answer_text = None
+            self.question_text = None
+        else:
+            self.card_pair = self.cards_for_review.pop()
 
-        self.question_text = Path.read_text(self.card_pair['question_path']).strip()
-        self.answer_text = Path.read_text(self.card_pair['answer_path']).strip()
-
-        self.card_widget.setText(self.question_text)
-        self.is_question = True
+            try:
+                self.question_text = review.get_card_content(self.card_pair['question_path'])
+                self.answer_text = review.get_card_content(self.card_pair['answer_path'])
+                self.card_widget.setText(self.question_text)
+                self.is_question = True
+            except FileNotFoundError:
+                # todo: popup?
+                self.deal_a_card()
 
     def mouseReleaseEvent(self, _event):
         if self.answer_text is not None:
@@ -87,16 +96,12 @@ class DeckReview(QWidget):
             else:
                 self.card_widget.setText(self.question_text)
                 self.is_question = True
+            self.good.show()
+            self.bad.show()
 
     def answered(self, score):
         review.card_reviewed(self.card_pair['info_path'], self.card_pair['side'], score)
-        if not self.cards_for_review:
-            self.card_widget.setText('Empty deck :)')
-            self.good.hide()
-            self.bad.hide()
-            self.answer_text = None
-            self.question_text = None
-        else: self.deal_a_card()
+        self.deal_a_card()
 
 
 def gui():
