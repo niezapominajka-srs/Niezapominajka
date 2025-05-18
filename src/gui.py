@@ -100,7 +100,7 @@ class DeckReview(QWidget):
             self.bad.show()
 
     def answered(self, score):
-        review.card_reviewed(self.card_pair['info_path'], self.card_pair['side'], score)
+        review.card_reviewed(self.card_pair['i_path'], self.card_pair['side'], score)
         self.deal_a_card()
 
 

@@ -7,7 +7,7 @@ import review
 
 def cli():
     deck_list = review.get_deck_list()
-    print('Decks:', )
+    print('Decks:')
     for x in deck_list: print(' ', x)
     while True:
         deck_name = stdin.readline().strip()
@@ -33,11 +33,11 @@ def cli_review(deck_name):
             key = stdin.readline()
             if key == 'g\n':
                 print('-------------\n-------------')
-                review.card_reviewed(card_pair['info_path'], card_pair['side'], 1)
+                review.card_reviewed(card_pair['i_path'], card_pair['side'], 1)
                 break
             if key == 'b\n':
                 print('-------------\n-------------')
-                review.card_reviewed(card_pair['info_path'], card_pair['side'], 0)
+                review.card_reviewed(card_pair['i_path'], card_pair['side'], 0)
                 break
     print('Empty deck :)')
 
