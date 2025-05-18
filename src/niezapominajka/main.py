@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-from constants import MODE
+from .constants import MODE
 
 
 def run_cli():
-    import cli
+    from . import cli
     cli.cli()
 
 
 def run_gui():
-    import gui
+    from . import gui
     gui.gui()
 
 

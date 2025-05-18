@@ -14,7 +14,12 @@ classifiers = [
 dependencies = [
     "PyQt6"
 ]
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [project.scripts]
-niezapominajka = "main:run_cli"
-niezapominajqt = "main:run_gui"
+niezapominajka = "niezapominajka.main:run_cli"
+niezapominajqt = "niezapominajka.main:run_gui"

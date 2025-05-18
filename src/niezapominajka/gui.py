@@ -4,13 +4,29 @@ from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
     QWidget,
+    QToolBar,
     QGridLayout,
     QListWidget,
     QLabel,
     QPushButton
 )
+from PyQt6.QtGui import QIcon
+from importlib import resources
 
-import review
+from . import review
+
+
+class Toolbar(QToolBar):
+    def __init__(self):
+        super().__init__()
+
+        home = QPushButton()
+        icon = resources.files('niezapominajka').joinpath('res', 'home.svg')
+        home.setIcon(QIcon(str(icon)))
+
+        home.clicked.connect(lambda: self.parent().setCentralWidget(HomeScreen()))
+
+        self.addWidget(home)
 
 
 class MainWindow(QMainWindow):
@@ -18,6 +34,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('Niezapominajka')
         self.setCentralWidget(HomeScreen())
+        self.addToolBar(Toolbar())
         self.show()
 
 

@@ -3,7 +3,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-from constants import STATE_HOME
+from .constants import STATE_HOME
 
 
 def card_reviewed(i_path, side, score):

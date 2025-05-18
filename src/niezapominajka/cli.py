@@ -2,7 +2,7 @@
 from signal import SIGINT, signal
 from sys import stdin
 
-import review
+from . import review
 
 
 def cli():
