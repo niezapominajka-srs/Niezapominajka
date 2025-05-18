@@ -75,12 +75,12 @@ def get_cards_for_review(deck_name):
         if exts in ({'f', 'b'}, {'f', 'b', 'i'})
     }
 
-    cards_without_pair = {
-        f'{basename}.{ext}'
-        for basename, exts in card_parts.items()
-        for ext in exts
-        if exts != {'f', 'b'}
-    }
+#    cards_without_pair = {
+#        f'{basename}.{ext}'
+#        for basename, exts in card_parts.items()
+#        for ext in exts
+#        if exts not in ({'f', 'b'}, {'f', 'b', 'i'})
+#    }
 
     def get_review_dict(side):
         if side == 'f':
