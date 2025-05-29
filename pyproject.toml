@@ -21,5 +21,5 @@ include-package-data = true
 where = ["src"]
 
 [project.scripts]
-niezapominajka = "niezapominajka.main:run_cli"
-niezapominajqt = "niezapominajka.main:run_gui"
+niezapominajka = "niezapominajka.__main__:run_cli"
+niezapominajqt = "niezapominajka.__main__:run_gui"
