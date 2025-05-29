@@ -23,10 +23,14 @@ class Toolbar(QToolBar):
         home = QPushButton()
         icon = resources.files('niezapominajka').joinpath('res', 'home.svg')
         home.setIcon(QIcon(str(icon)))
-
-        home.clicked.connect(lambda: self.parent().setCentralWidget(HomeScreen()))
-
+        home.clicked.connect(lambda: self.go_home(self.parent()))
         self.addWidget(home)
+
+    def go_home(self, parent):
+        if isinstance(parent.centralWidget, DeckReview):
+            parent.centralWidget.close_db()
+
+        parent.setCentralWidget(HomeScreen())
 
 
 class MainWindow(QMainWindow):
@@ -75,11 +79,12 @@ class DeckReview(QWidget):
 
         self.answer_text = None
         self.question_text = None
-        self.cards_for_review = review.get_cards_for_review(deck_name)
+        self.cards_for_review, self.db_con = review.get_cards_for_review(deck_name)
         if not self.cards_for_review:
             self.card_widget.setText('Empty deck :)')
             self.good.hide()
             self.bad.hide()
+            self.db_con.close()
         else:
             self.card_pair = None
             self.is_question = None
@@ -93,6 +98,7 @@ class DeckReview(QWidget):
             self.card_widget.setText('Empty deck :)')
             self.answer_text = None
             self.question_text = None
+            self.db_con.close()
         else:
             self.card_pair = self.cards_for_review.pop()
 
@@ -117,8 +123,12 @@ class DeckReview(QWidget):
             self.bad.show()
 
     def answered(self, score):
-        review.card_reviewed(self.card_pair['i_path'], self.card_pair['side'], score)
+        review.card_reviewed(self.card_pair['question_path'].stem,
+                             self.card_pair['side'], self.db_con, score)
         self.deal_a_card()
+
+    def close_db(self):
+        self.db_con.close()
 
 
 def gui():

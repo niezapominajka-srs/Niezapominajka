@@ -18,7 +18,7 @@ def cli():
 
 
 def cli_review(deck_name):
-    cards_for_review = review.get_cards_for_review(deck_name)
+    cards_for_review, db_con = review.get_cards_for_review(deck_name)
     while cards_for_review:
         card_pair = cards_for_review.pop()
         try:
@@ -33,12 +33,15 @@ def cli_review(deck_name):
             key = stdin.readline()
             if key == 'g\n':
                 print('-------------\n-------------')
-                review.card_reviewed(card_pair['i_path'], card_pair['side'], 1)
+                review.card_reviewed(card_pair['question_path'].stem,
+                                     card_pair['side'], db_con, 1)
                 break
             if key == 'b\n':
                 print('-------------\n-------------')
-                review.card_reviewed(card_pair['i_path'], card_pair['side'], 0)
+                review.card_reviewed(card_pair['question_path'].stem,
+                                     card_pair['side'], db_con, 0)
                 break
+    db_con.close()
     print('Empty deck :)')
 
 
