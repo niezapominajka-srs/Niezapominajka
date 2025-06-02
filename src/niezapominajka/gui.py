@@ -15,6 +15,8 @@ from importlib import resources
 
 from . import review
 
+_review_session = None
+
 
 class Toolbar(QToolBar):
     def __init__(self):
@@ -27,8 +29,8 @@ class Toolbar(QToolBar):
         self.addWidget(home)
 
     def go_home(self, parent):
-        if isinstance(parent.centralWidget, DeckReview):
-            parent.centralWidget.close_db()
+        if _review_session:
+            _review_session.close_db()
 
         parent.setCentralWidget(HomeScreen())
 
@@ -79,37 +81,31 @@ class DeckReview(QWidget):
 
         self.answer_text = None
         self.question_text = None
-        self.cards_for_review, self.db_con = review.get_cards_for_review(deck_name)
-        if not self.cards_for_review:
-            self.card_widget.setText('Empty deck :)')
-            self.good.hide()
-            self.bad.hide()
-            self.db_con.close()
-        else:
-            self.card_pair = None
-            self.is_question = None
+        global _review_session
+        _review_session = review.ReviewSession(deck_name)
 
-            self.deal_a_card()
+        self.deal_a_card()
 
     def deal_a_card(self):
         self.good.hide()
         self.bad.hide()
-        if not self.cards_for_review:
-            self.card_widget.setText('Empty deck :)')
-            self.answer_text = None
-            self.question_text = None
-            self.db_con.close()
-        else:
-            self.card_pair = self.cards_for_review.pop()
-
+        while True:
             try:
-                self.question_text = review.get_card_content(self.card_pair['question_path'])
-                self.answer_text = review.get_card_content(self.card_pair['answer_path'])
-                self.card_widget.setText(self.question_text)
-                self.is_question = True
+                cards_content = _review_session.get_next_card()
+                if cards_content:
+                    self.question_text = cards_content[0]
+                    self.answer_text = cards_content[1]
+                    self.card_widget.setText(self.question_text)
+                    self.is_question = True
+                    break
+                else:
+                    self.card_widget.setText('Empty deck :)')
+                    self.answer_text = None
+                    self.question_text = None
+                    break
             except FileNotFoundError:
                 # todo: popup?
-                self.deal_a_card()
+                continue
 
     def mouseReleaseEvent(self, _event):
         if self.answer_text is not None:
@@ -123,12 +119,8 @@ class DeckReview(QWidget):
             self.bad.show()
 
     def answered(self, score):
-        review.card_reviewed(self.card_pair['question_path'].stem,
-                             self.card_pair['side'], self.db_con, score)
+        _review_session.submit_score(score)
         self.deal_a_card()
-
-    def close_db(self):
-        self.db_con.close()
 
 
 def gui():
