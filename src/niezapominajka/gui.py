@@ -29,8 +29,10 @@ class Toolbar(QToolBar):
         self.addWidget(home)
 
     def go_home(self, parent):
+        global _review_session
         if _review_session:
             _review_session.close_db()
+            _review_session = None
 
         parent.setCentralWidget(HomeScreen())
 
