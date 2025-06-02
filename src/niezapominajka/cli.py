@@ -1,16 +1,27 @@
 #!/usr/bin/env python
+import readline
 from signal import SIGINT, signal
-from sys import stdin
 
 from . import review
 
 
 def cli():
     deck_list = review.get_deck_list()
+
     print('Decks:')
     for x in deck_list: print(' ', x)
+
+    def completer(text, state):
+        options = [x for x in deck_list if x.startswith(text)]
+        if state < len(options):
+            return options[state]
+        else:
+            return None
+    readline.parse_and_bind("tab: complete")
+    readline.set_completer(completer)
+
     while True:
-        deck_name = stdin.readline().strip()
+        deck_name = input()
         if deck_name in deck_list:
             print('-------------\n-------------')
             cli_review(deck_name)
@@ -31,12 +42,12 @@ def cli_review(deck_name):
                 print('-------------\n-------------')
                 continue
             while True:
-                key = stdin.readline()
-                if key == 'g\n':
+                key = input()
+                if key == 'g':
                     print('-------------\n-------------')
                     review_session.submit_score(1)
                     break
-                if key == 'b\n':
+                if key == 'b':
                     print('-------------\n-------------')
                     review_session.submit_score(0)
                     break
