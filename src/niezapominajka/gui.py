@@ -10,7 +10,11 @@ from PyQt6.QtWidgets import (
     QLabel,
     QPushButton
 )
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import (
+    QIcon,
+    QKeySequence,
+    QShortcut
+)
 from importlib import resources
 
 from . import review
@@ -75,10 +79,15 @@ class DeckReview(QWidget):
         self.good = QPushButton('(g)ood')
         layout.addWidget(self.good)
 
+        shortcut = QShortcut(QKeySequence('g'), self)
+        shortcut.activated.connect(lambda: self.answered(1))
+        self.good.clicked.connect(lambda: self.answered(1))
+
         self.bad = QPushButton('(b)ad')
         layout.addWidget(self.bad)
 
-        self.good.clicked.connect(lambda: self.answered(1))
+        shortcut = QShortcut(QKeySequence('b'), self)
+        shortcut.activated.connect(lambda: self.answered(0))
         self.bad.clicked.connect(lambda: self.answered(0))
 
         self.answer_text = None
