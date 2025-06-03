@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+# This file is part of Niezapominajka flashcard app
+# License: GNU GPL version 3 or later
+# Copyright (C) 2025 Wiktor Malinkiewicz
+
 from signal import SIGINT, signal, SIG_DFL
 from PyQt6.QtWidgets import (
     QApplication,
