@@ -4,15 +4,17 @@
 # Copyright (C) 2025 Wiktor Malinkiewicz
 
 from signal import SIGINT, signal, SIG_DFL
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
-    QToolBar,
-    QGridLayout,
-    QListWidget,
     QLabel,
-    QPushButton
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QToolBar,
+    QVBoxLayout,
+    QWidget,
 )
 from PyQt6.QtGui import (
     QIcon,
@@ -57,11 +59,14 @@ class MainWindow(QMainWindow):
 class HomeScreen(QWidget):
     def __init__(self):
         super().__init__()
-        layout = QGridLayout(self)
+        layout = QVBoxLayout(self)
         self.setLayout(layout)
 
         self.deck_list = QListWidget(self)
-        self.deck_list.addItems(x for x in review.get_deck_list())
+        for x in review.get_deck_list():
+            item = QListWidgetItem(x)
+            item.setTextAlignment(Qt.AlignmentFlag.AlignHCenter)
+            self.deck_list.addItem(item)
         layout.addWidget(self.deck_list)
 
         self.deck_list.clicked.connect(self.review_gui)
@@ -74,21 +79,25 @@ class HomeScreen(QWidget):
 class DeckReview(QWidget):
     def __init__(self, deck_name):
         super().__init__()
-        layout = QGridLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
 
         self.card_widget = QLabel()
+        self.card_widget.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.card_widget)
 
         self.good = QPushButton('(g)ood')
-        layout.addWidget(self.good)
+        self.bad = QPushButton('(b)ad')
+        buttons = (self.good, self.bad)
+        for x in buttons:
+            size_policy = x.sizePolicy()
+            size_policy.setRetainSizeWhenHidden(True)
+            x.setSizePolicy(size_policy)
+            layout.addWidget(x)
 
         shortcut = QShortcut(QKeySequence('g'), self)
         shortcut.activated.connect(lambda: self.answered(1))
         self.good.clicked.connect(lambda: self.answered(1))
-
-        self.bad = QPushButton('(b)ad')
-        layout.addWidget(self.bad)
 
         shortcut = QShortcut(QKeySequence('b'), self)
         shortcut.activated.connect(lambda: self.answered(0))
