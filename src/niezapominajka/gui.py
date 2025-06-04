@@ -75,6 +75,10 @@ class HomeScreen(QWidget):
         deck_name = self.deck_list.currentItem().text()
         self.parent().setCentralWidget(DeckReview(deck_name))
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Return:
+            self.review_gui()
+
 
 class DeckReview(QWidget):
     def __init__(self, deck_name):
