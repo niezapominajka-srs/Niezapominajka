@@ -1,4 +1,3 @@
 src/niezapominajka/__pycache__
-src/.venv
-src/Niezapominajka.egg-info
+src/niezapominajka.egg-info
 dist
