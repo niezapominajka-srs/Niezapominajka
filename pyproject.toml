@@ -11,9 +11,6 @@ requires-python = ">=3.6"
 classifiers = [
     "Programming Language :: Python :: 3"
 ]
-dependencies = [
-    "PyQt6"
-]
 [tool.setuptools]
 include-package-data = true
 
@@ -21,5 +18,4 @@ include-package-data = true
 where = ["src"]
 
 [project.scripts]
-niezapominajka = "niezapominajka.__main__:run_cli"
-niezapominajqt = "niezapominajka.__main__:run_gui"
+niezapominajka = "niezapominajka.__main__:main"
