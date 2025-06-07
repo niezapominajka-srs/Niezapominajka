@@ -10,8 +10,18 @@ from pathlib import Path
 from .constants import STATE_HOME
 
 
-def get_deck_list():
-    return [x.stem for x in STATE_HOME.iterdir() if x.is_dir()]
+def get_deck_list(flags=[]):
+    deck_names = [x.stem for x in STATE_HOME.iterdir() if x.is_dir()]
+    deck_list = []
+    if 'q' in flags: return deck_names
+    else:
+        for name in deck_names:
+            session = ReviewSession(name)
+            deck_list.append({
+                'name': name,
+                'num': len(session.cards_for_review),
+            })
+        return deck_list
 
 
 class ReviewSession:

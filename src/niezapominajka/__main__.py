@@ -7,8 +7,8 @@ from sys import argv
 
 
 def main():
-    global mode
     mode = 'review'
+    flags = []
     argc = len(argv)
     if argc > 1:
         match argv[1]:
@@ -18,15 +18,22 @@ def main():
             case '-h' | '--help':
                 mode = None
                 print('''\
+subcommands:
+    review (default)
+        options:
+            -q, --quiet
+                do not fetch and show the number of cards in today's review session next
+                to the deck name.
 options:
     --version
     --help\
 ''')
+            case '-q' | '--quiet': flags.append('q')
 
     match mode:
         case 'review':
             from . import cli
-            cli.cli()
+            cli.cli(flags)
 
 
 if __name__ == '__main__':

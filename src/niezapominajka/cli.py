@@ -9,14 +9,25 @@ from signal import SIGINT, signal
 from . import review
 
 
-def cli():
-    deck_list = review.get_deck_list()
+def cli(flags=[]):
+    deck_list = review.get_deck_list(flags)
+    deck_names = None
 
     print('Decks:')
-    for x in deck_list: print(' ', x)
+    if 'q' in flags:
+        deck_names = deck_list
+        for x in deck_list: print(' ', x)
+    else:
+        name_max_len = 0
+        deck_names = []
+        for x in deck_list:
+            deck_names.append(x['name'])
+            if len(x['name']) > name_max_len: name_max_len = len(x['name'])
+        for x in deck_list: print(f" {x['name']}\
+{x['num']: >{5 + name_max_len - len(x['name']) + len(str(x['num']))}}")
 
     def completer(text, state):
-        options = [x for x in deck_list if x.startswith(text)]
+        options = [x for x in deck_names if x.startswith(text)]
         if state < len(options):
             return options[state]
         else:
@@ -26,7 +37,7 @@ def cli():
 
     while True:
         deck_name = input()
-        if deck_name in deck_list:
+        if deck_name in deck_names:
             print('-------------\n-------------')
             cli_review(deck_name)
             break
