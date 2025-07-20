@@ -7,11 +7,11 @@ import sqlite3
 from collections import defaultdict
 from pathlib import Path
 
-from .constants import STATE_HOME
+from .constants import DATA_HOME
 
 
 def get_deck_list(flags=[]):
-    deck_names = [x.stem for x in STATE_HOME.iterdir() if x.is_dir()]
+    deck_names = [x.stem for x in DATA_HOME.iterdir() if x.is_dir()]
     deck_list = []
     if 'q' in flags: return deck_names
     else:
@@ -26,7 +26,7 @@ def get_deck_list(flags=[]):
 
 class ReviewSession:
     def __init__(self, deck_name):
-        deck_dir = STATE_HOME / deck_name
+        deck_dir = DATA_HOME / deck_name
 
         # card pair validation
         # each pair must have both front and back

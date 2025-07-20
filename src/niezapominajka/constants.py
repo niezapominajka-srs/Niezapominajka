@@ -6,11 +6,11 @@
 from os import environ
 from pathlib import Path
 
-STATE_HOME = None
+DATA_HOME = None
 
-if 'XDG_STATE_HOME' in environ:
-    STATE_HOME = Path(f'{environ["XDG_STATE_HOME"]}/niezapominajka')
+if 'XDG_DATA_HOME' in environ:
+    DATA_HOME = Path(f'{environ["XDG_DATA_HOME"]}/niezapominajka')
 else:
-    STATE_HOME = Path(f'{environ["HOME"]}/.local/state/niezapominajka')
-if not Path.exists(STATE_HOME):
-    Path(STATE_HOME).mkdir(parents=True, exist_ok=True)
+    DATA_HOME = Path(f'{environ["HOME"]}/.local/share/niezapominajka')
+if not Path.exists(DATA_HOME):
+    Path(DATA_HOME).mkdir(parents=True, exist_ok=True)
