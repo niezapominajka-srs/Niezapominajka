@@ -51,9 +51,9 @@ def cli_review(deck_name):
         cards_content = review_session.get_next_card()
         if cards_content:
             try:
-                print(cards_content[0])
+                print(cards_content['question'])
                 input()
-                print(cards_content[1])
+                print(cards_content['answer'])
                 print('-------------\n(g)ood  (b)ad')
             except FileNotFoundError:
                 print('-------------\n-------------')

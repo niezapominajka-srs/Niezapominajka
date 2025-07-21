@@ -74,7 +74,7 @@ back_next_revision DEFAULT CURRENT_DATE)''')
             self.current_card = self.cards_for_review.pop()
             question = get_card_content(self.current_card['q_path'])
             answer = get_card_content(self.current_card['a_path'])
-            return (question, answer)
+            return {'question': question, 'answer': answer}
         else:
             self.con.close()
             return None
