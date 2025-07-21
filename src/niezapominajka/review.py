@@ -4,7 +4,6 @@
 # Copyright (C) 2025 Wiktor Malinkiewicz
 
 import sqlite3
-from collections import defaultdict
 from pathlib import Path
 
 from .constants import DATA_HOME
