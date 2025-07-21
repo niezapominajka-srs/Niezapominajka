@@ -26,8 +26,10 @@ def cli(flags=[]):
         for x in deck_list: print(f" {x['name']}\
 {x['num']: >{5 + name_max_len - len(x['name']) + len(str(x['num']))}}")
 
+    non_empty_decks_names = [x['name'] for x in deck_list if x['num'] != 0]
+
     def completer(text, state):
-        options = [x for x in deck_names if x.startswith(text)]
+        options = [x for x in non_empty_decks_names if x.startswith(text)]
         if state < len(options):
             return options[state]
         else:
