@@ -5,6 +5,7 @@
 
 import sqlite3
 from pathlib import Path
+from datetime import date, timedelta
 
 from .constants import DATA_HOME
 
@@ -49,7 +50,8 @@ back_next_revision DEFAULT CURRENT_DATE)''')
             self.con.commit()
 
         self.cards_for_review = [
-            {'q_path': deck_dir / name / side,
+            {'name': name,
+             'q_path': deck_dir / name / side,
              'a_path': deck_dir / name / ('back' if side == 'front' else 'front'),
              'side': side
              }
@@ -81,13 +83,18 @@ back_next_revision DEFAULT CURRENT_DATE)''')
 
     def submit_score(self, score):
         side = self.current_card['side']
-        self.cur.execute(f'''UPDATE cards set
-            {side}_level = {side}_level * 2 * ? + 1,
-            {side}_next_revision = CASE ?
-            WHEN 0 THEN date('now','+1 day')
-            ELSE date('now','+' ||cast(({side}_level+1) as text)|| ' day')
-            END
-            WHERE name = ?''', (score, score, self.current_card['q_path'].stem))
+        curr_score, curr_revision_date = self.cur.execute(f'''
+            SELECT {side}_level, {side}_next_revision FROM cards
+            WHERE name = ?
+        ''', (self.current_card['name'],)).fetchone()
+        new_score = curr_score * (score * 2) + 1
+        new_date = date.today() + timedelta(days=new_score)
+        self.cur.execute(f'''
+            UPDATE cards SET
+            {side}_level = ?,
+            {side}_next_revision = ?
+            WHERE name = ?
+        ''', (new_score, new_date, self.current_card['name']))
         self.con.commit()
 
     def close_db(self):
