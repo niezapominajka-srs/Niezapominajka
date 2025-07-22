@@ -14,3 +14,5 @@ else:
     DATA_HOME = Path(f'{environ["HOME"]}/.local/share/niezapominajka')
 if not Path.exists(DATA_HOME):
     Path(DATA_HOME).mkdir(parents=True, exist_ok=True)
+
+NEW_CARDS_PER_DAY = 10

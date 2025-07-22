@@ -7,7 +7,7 @@ import sqlite3
 from pathlib import Path
 from datetime import date, timedelta
 
-from .constants import DATA_HOME
+from .constants import DATA_HOME, NEW_CARDS_PER_DAY
 
 
 def get_deck_list(flags=[]):
@@ -31,22 +31,34 @@ class ReviewSession:
         self.con = sqlite3.connect(deck_dir / f'{deck_name}.db')
         self.cur = self.con.cursor()
         self.cur.execute('''CREATE TABLE IF NOT EXISTS cards(name NOT NULL,
-front_level DEFAULT 1,
-back_level DEFAULT 1,
-front_next_revision DEFAULT CURRENT_DATE,
-back_next_revision DEFAULT CURRENT_DATE)''')
+side NOT NULL,
+level DEFAULT 1,
+next_revision DEFAULT CURRENT_DATE)''')
+        self.cur.execute('''CREATE TABLE IF NOT EXISTS stats_new_per_day(
+date DEFAULT CURRENT_DATE,
+number NOT NULL)''')
 
-        db_pairs = {x[0] for x in self.cur.execute('SELECT name FROM cards').fetchall()}
+        db_cards = set(self.cur.execute('SELECT name, side FROM cards').fetchall())
 
-        fs_pairs = {
-            path.name for path in deck_dir.iterdir()
+        fs_cards = set(
+            (path.name, side)
+            for path in deck_dir.iterdir()
             if path.is_dir()
             and {'front', 'back'}.issubset(x.name for x in path.iterdir())
-        }
+            for side in ('front', 'back')
+        )
 
-        missing_pairs = fs_pairs - db_pairs
-        if missing_pairs:
-            self.cur.executemany('INSERT into cards (name) VALUES(?)', [(x,) for x in missing_pairs])
+        new_cards = fs_cards - db_cards
+        new_cards_already_added = self.cur.execute('SELECT number FROM stats_new_per_day WHERE date = CURRENT_DATE').fetchone()
+        new_cards_for_today = []
+        if not new_cards_already_added:
+            new_cards_for_today = {new_cards.pop() for _ in range(
+                min(len(new_cards), NEW_CARDS_PER_DAY)
+            )}
+        self.cur.execute(f'INSERT INTO stats_new_per_day (number) VALUES ({len(new_cards_for_today)})')
+        self.con.commit()
+        if new_cards_for_today:
+            self.cur.executemany('INSERT INTO cards (name, side) VALUES(?, ?)', [x for x in new_cards_for_today])
             self.con.commit()
 
         self.cards_for_review = [
@@ -56,11 +68,9 @@ back_next_revision DEFAULT CURRENT_DATE)''')
              'side': side
              }
             for name, side in self.cur.execute('''
-                SELECT name, 'front' as side FROM cards where front_next_revision <= CURRENT_DATE
-                UNION ALL
-                SELECT name, 'back' as side FROM cards where back_next_revision <= CURRENT_DATE
+                SELECT name, side FROM cards where next_revision <= CURRENT_DATE
             ''').fetchall()
-            if name in fs_pairs
+            if (name, side) in fs_cards
         ]
 
     def get_next_card(self):
@@ -82,19 +92,20 @@ back_next_revision DEFAULT CURRENT_DATE)''')
             return None
 
     def submit_score(self, score):
+        name = self.current_card['name']
         side = self.current_card['side']
-        curr_score, curr_revision_date = self.cur.execute(f'''
-            SELECT {side}_level, {side}_next_revision FROM cards
-            WHERE name = ?
-        ''', (self.current_card['name'],)).fetchone()
+        curr_score, curr_revision_date = self.cur.execute('''
+            SELECT level, next_revision FROM cards
+            WHERE name = ? and side = ?
+        ''', (name, side)).fetchone()
         new_score = curr_score * (score * 2) + 1
         new_date = date.today() + timedelta(days=new_score)
-        self.cur.execute(f'''
+        self.cur.execute('''
             UPDATE cards SET
-            {side}_level = ?,
-            {side}_next_revision = ?
-            WHERE name = ?
-        ''', (new_score, new_date, self.current_card['name']))
+            level = ?,
+            next_revision = ?
+            WHERE name = ? and side = ?
+        ''', (new_score, new_date, name, side))
         self.con.commit()
 
     def close_db(self):
