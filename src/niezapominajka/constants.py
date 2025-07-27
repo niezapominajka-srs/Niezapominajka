@@ -9,9 +9,9 @@ from pathlib import Path
 DECKS_DIR = None
 
 if 'XDG_DECKS_DIR' in environ:
-    DECKS_DIR = Path(f'{environ["XDG_DATA_HOME"]}/niezapominajka')
+    DECKS_DIR = Path(f'{environ["XDG_DATA_HOME"]}/niezapominajka/decks')
 else:
-    DECKS_DIR = Path(f'{environ["HOME"]}/.local/share/niezapominajka')
+    DECKS_DIR = Path(f'{environ["HOME"]}/.local/share/niezapominajka/decks')
 if not Path.exists(DECKS_DIR):
     Path(DECKS_DIR).mkdir(parents=True, exist_ok=True)
 
