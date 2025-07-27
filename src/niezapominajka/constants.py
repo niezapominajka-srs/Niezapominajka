@@ -6,13 +6,13 @@
 from os import environ
 from pathlib import Path
 
-DATA_HOME = None
+DECKS_DIR = None
 
-if 'XDG_DATA_HOME' in environ:
-    DATA_HOME = Path(f'{environ["XDG_DATA_HOME"]}/niezapominajka')
+if 'XDG_DECKS_DIR' in environ:
+    DECKS_DIR = Path(f'{environ["XDG_DATA_HOME"]}/niezapominajka')
 else:
-    DATA_HOME = Path(f'{environ["HOME"]}/.local/share/niezapominajka')
-if not Path.exists(DATA_HOME):
-    Path(DATA_HOME).mkdir(parents=True, exist_ok=True)
+    DECKS_DIR = Path(f'{environ["HOME"]}/.local/share/niezapominajka')
+if not Path.exists(DECKS_DIR):
+    Path(DECKS_DIR).mkdir(parents=True, exist_ok=True)
 
 NEW_CARDS_PER_DAY = 10

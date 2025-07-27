@@ -7,11 +7,11 @@ import sqlite3
 from pathlib import Path
 from datetime import date, timedelta
 
-from .constants import DATA_HOME, NEW_CARDS_PER_DAY
+from .constants import DECKS_DIR, NEW_CARDS_PER_DAY
 
 
 def get_deck_list(flags=[]):
-    deck_names = [x.stem for x in DATA_HOME.iterdir() if x.is_dir()]
+    deck_names = [x.stem for x in DECKS_DIR.iterdir() if x.is_dir()]
     deck_list = []
     if 'q' in flags: return deck_names
     else:
@@ -26,7 +26,7 @@ def get_deck_list(flags=[]):
 
 class ReviewSession:
     def __init__(self, deck_name):
-        deck_dir = DATA_HOME / deck_name
+        deck_dir = DECKS_DIR / deck_name
 
         self.con = sqlite3.connect(deck_dir / f'{deck_name}.db')
         self.cur = self.con.cursor()
